@@ -29,20 +29,24 @@ class _SheetLayoutState extends State<SheetLayout> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomMultiChildLayout(
-      delegate: _SheetLayoutDelegate(Sheet.of(context), widget.controller),
-      children: [
-        for (int rowIndex = widget.controller.firstRowIndex;
-            rowIndex < widget.controller.lastRowIndex;
-            rowIndex++)
-          for (int colIndex = widget.controller.firstColIndex;
-              colIndex < widget.controller.lastColIndex;
-              colIndex++)
-            LayoutId(
-              id: _CellId(rowIndex, colIndex),
-              child: CellView(rowIndex, colIndex),
-            ),
-      ],
+    return Container(
+      clipBehavior: Clip.hardEdge,
+      decoration: const BoxDecoration(),
+      child: CustomMultiChildLayout(
+        delegate: _SheetLayoutDelegate(Sheet.of(context), widget.controller),
+        children: [
+          for (int rowIndex = widget.controller.firstRowIndex;
+              rowIndex < widget.controller.lastRowIndex;
+              rowIndex++)
+            for (int colIndex = widget.controller.firstColIndex;
+                colIndex < widget.controller.lastColIndex;
+                colIndex++)
+              LayoutId(
+                id: _CellId(rowIndex, colIndex),
+                child: CellView(rowIndex, colIndex),
+              ),
+        ],
+      ),
     );
   }
 

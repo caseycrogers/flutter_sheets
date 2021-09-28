@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_sheets/constants.dart';
 import 'package:flutter_sheets/sheet_page.dart';
 
-class Sheet {
+class Sheet extends ChangeNotifier {
   Sheet(
     this._rowCount,
     this._colCount, {
@@ -22,17 +22,14 @@ class Sheet {
     _initialize();
   }
 
+  int updateCount = 0;
+
   int _rowCount;
   int _colCount;
-  SplayTreeMap<int, double> _rowHeights;
-  SplayTreeMap<int, double> _colWidths;
+  final SplayTreeMap<int, double> _rowHeights;
+  final SplayTreeMap<int, double> _colWidths;
   late List<double> _topEdges;
   late List<double> _leftEdges;
-
-  void _initialize() {
-    _topEdges = _sizeList(_rowHeights, kRowHeight, _rowCount);
-    _leftEdges = _sizeList(_colWidths, kColWidth, _colCount);
-  }
 
   final int borderWidth;
 
@@ -127,6 +124,34 @@ class Sheet {
 
   static Sheet of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<SheetProvider>()!.sheet;
+  }
+
+  String rowName(int rowIndex) {
+    return rowIndex.toString();
+  }
+
+  String colName(int colIndex) {
+    if (colIndex < 26) {
+      return kLetters.substring(colIndex, colIndex + 1);
+    }
+    return '${colName((colIndex ~/ 26) - 1)}${colName(colIndex % 26)}';
+  }
+
+  void setHeight(int rowIndex, double newHeight) {
+    _rowHeights[rowIndex] = newHeight;
+    _initialize();
+  }
+
+  void setWidth(int colIndex, double newWidth) {
+    _colWidths[colIndex] = newWidth;
+    _initialize();
+  }
+
+  void _initialize() {
+    _topEdges = _sizeList(_rowHeights, kRowHeight, _rowCount);
+    _leftEdges = _sizeList(_colWidths, kColWidth, _colCount);
+    notifyListeners();
+    updateCount++;
   }
 }
 

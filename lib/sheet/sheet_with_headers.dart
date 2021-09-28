@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sheets/constants.dart';
 import 'package:flutter_sheets/models/sheet.dart';
 import 'package:flutter_sheets/models/sheet_controller.dart';
+import 'package:flutter_sheets/sheet/sheet_header.dart';
 import 'package:flutter_sheets/sheet/sheet_layout.dart';
 import 'package:flutter_sheets/sheet/sheet_scrollbar.dart';
 
@@ -15,8 +16,6 @@ class SheetWithHeaders extends StatefulWidget {
   @override
   _SheetWithHeadersState createState() => _SheetWithHeadersState();
 }
-
-const double _dummyRowHeaderWidth = 50;
 
 class _SheetWithHeadersState extends State<SheetWithHeaders> {
   SheetController? _sheetController;
@@ -31,7 +30,7 @@ class _SheetWithHeadersState extends State<SheetWithHeaders> {
         topLeft: Offset.zero,
         size: Size(
           constraints.maxWidth -
-              _dummyRowHeaderWidth -
+              kDummyRowHeaderWidth -
               kScrollBarPaddedThickness,
           constraints.maxHeight - kPageHeaderHeight - kScrollBarPaddedThickness,
         ),
@@ -46,11 +45,11 @@ class _SheetWithHeadersState extends State<SheetWithHeaders> {
               child: Row(
                 children: [
                   const SizedBox(
-                    width: _dummyRowHeaderWidth + kBorderThickness,
+                    width: kDummyRowHeaderWidth + kBorderThickness,
                   ),
                   Expanded(
                     // Column Headers.
-                    child: _Headers(
+                    child: SheetHeader(
                       controller: _sheetController!,
                       axis: Axis.horizontal,
                     ),
@@ -64,9 +63,9 @@ class _SheetWithHeadersState extends State<SheetWithHeaders> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SizedBox(
-                    width: _dummyRowHeaderWidth + kBorderThickness,
+                    width: kDummyRowHeaderWidth + kBorderThickness,
                     // Row headers.
-                    child: _Headers(
+                    child: SheetHeader(
                       controller: _sheetController!,
                       axis: Axis.vertical,
                     ),
@@ -88,7 +87,7 @@ class _SheetWithHeadersState extends State<SheetWithHeaders> {
               child: Row(
                 children: [
                   const SizedBox(
-                    width: _dummyRowHeaderWidth + kBorderThickness,
+                    width: kDummyRowHeaderWidth + kBorderThickness,
                   ),
                   Expanded(
                     child: SheetScrollbar(
@@ -99,6 +98,7 @@ class _SheetWithHeadersState extends State<SheetWithHeaders> {
                   ),
                   const SizedBox(
                     width: kScrollBarPaddedThickness,
+                    height: kScrollBarPaddedThickness,
                   ),
                 ],
               ),
@@ -108,60 +108,4 @@ class _SheetWithHeadersState extends State<SheetWithHeaders> {
       );
     });
   }
-}
-
-class _Headers extends StatelessWidget {
-  const _Headers({
-    Key? key,
-    required this.controller,
-    required this.axis,
-  }) : super(key: key);
-
-  final SheetController controller;
-  final Axis axis;
-
-  bool get isVertical => axis == Axis.vertical;
-
-  @override
-  Widget build(BuildContext context) {
-    final Sheet sheet = Sheet.of(context);
-    return ListView.builder(
-      controller: isVertical
-          ? controller.verticalScrollController
-          : controller.horizontalScrollController,
-      physics: const NeverScrollableScrollPhysics(),
-      scrollDirection: axis,
-      itemCount: isVertical ? sheet.rowCount : sheet.colCount,
-      itemBuilder: (context, index) {
-        return Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            border: Border.all(
-              color: Colors.grey.shade400,
-              width: kBorderThickness / 2,
-            ),
-          ),
-          width: isVertical
-              ? kPageHeaderHeight + kBorderThickness
-              : sheet.widthOf(index),
-          height: isVertical
-              ? sheet.heightOf(index)
-              : kPageHeaderHeight + kBorderThickness,
-          child: Text(isVertical ? _rowName(index) : _colName(index)),
-        );
-      },
-    );
-  }
-}
-
-String _rowName(int rowIndex) {
-  return rowIndex.toString();
-}
-
-String _colName(int colIndex) {
-  if (colIndex < 26) {
-    return kLetters.substring(colIndex, colIndex + 1);
-  }
-  return '${_colName((colIndex ~/ 26) - 1)}${_colName(colIndex % 26)}';
 }

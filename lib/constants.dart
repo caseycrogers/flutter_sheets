@@ -9,3 +9,5 @@ const double kScrollBarThickness = 10;
 const double kScrollBarPaddedThickness = 13;
 
 const String kLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+const double kDummyRowHeaderWidth = 50;

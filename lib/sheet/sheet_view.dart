@@ -94,7 +94,7 @@ class CellView extends StatelessWidget {
         color: Colors.white,
         border: Border.all(
           color: Colors.grey.shade200,
-          width: kBorderThickness,
+          width: kBorderThickness / 2,
         ),
       ),
       child: SizedBox.expand(child: Text('$rowIndex, $colIndex')),
