@@ -48,12 +48,19 @@ class Sheet {
 
   double get height => _topEdges.last + heightOf(_rowCount - 1);
 
-  double widthOf(int colIndex) {
-    return _colWidths[colIndex] ?? kColWidth;
+  double padding(bool padded) {
+    if (padded) {
+      return kBorderThickness;
+    }
+    return 0;
   }
 
-  double heightOf(int rowIndex) {
-    return _rowHeights[rowIndex] ?? kRowHeight;
+  double widthOf(int colIndex, {bool padded = true}) {
+    return (_colWidths[colIndex] ?? kColWidth) + padding(padded);
+  }
+
+  double heightOf(int rowIndex, {bool padded = true}) {
+    return (_rowHeights[rowIndex] ?? kRowHeight) + padding(padded);
   }
 
   double xOffsetOf(int colIndex) {
@@ -80,26 +87,26 @@ class Sheet {
 
   /// Returns the first non-visible row.
   int lastRowIndexOf(int firstRowIndex, Size size) {
-    final double viewPortBottomEdge = heightOf(firstRowIndex) + size.width;
+    final double viewPortBottomEdge = yOffsetOf(firstRowIndex) + size.height;
     final index = _topEdges
         .sublist(firstRowIndex)
         .indexWhere((edge) => edge >= viewPortBottomEdge);
     if (index == -1) {
       return _topEdges.length;
     }
-    return index;
+    return firstRowIndex + index;
   }
 
   /// Returns the first non-visible column.
   int lastColIndexOf(int firstColIndex, Size size) {
-    final double viewPortRightEdge = widthOf(firstColIndex) + size.width;
+    final double viewPortRightEdge = xOffsetOf(firstColIndex) + size.width;
     final index = _leftEdges
         .sublist(firstColIndex)
         .indexWhere((edge) => edge >= viewPortRightEdge);
     if (index == -1) {
       return _leftEdges.length;
     }
-    return index;
+    return firstColIndex + index;
   }
 
   double leftEdgeOf(int colIndex) {
@@ -156,7 +163,7 @@ List<double> _sizeList(
   double soFar = 0;
   while (i < length) {
     sizeList[i] = soFar;
-    soFar += customSizes[i] ?? defaultSize;
+    soFar += (customSizes[i] ?? defaultSize) + kBorderThickness;
     i++;
   }
   return sizeList;

@@ -29,7 +29,12 @@ class _SheetWithHeadersState extends State<SheetWithHeaders> {
       _sheetController ??= SheetController(
         _sheet,
         topLeft: Offset.zero,
-        size: Size(constraints.maxWidth, constraints.maxHeight),
+        size: Size(
+          constraints.maxWidth -
+              _dummyRowHeaderWidth -
+              kScrollBarPaddedThickness,
+          constraints.maxHeight - kPageHeaderHeight - kScrollBarPaddedThickness,
+        ),
       );
       WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {});
       return Container(
@@ -37,10 +42,12 @@ class _SheetWithHeadersState extends State<SheetWithHeaders> {
         child: Column(
           children: [
             SizedBox(
-              height: kPageHeaderHeight,
+              height: kPageHeaderHeight + kBorderThickness,
               child: Row(
                 children: [
-                  const SizedBox(width: _dummyRowHeaderWidth),
+                  const SizedBox(
+                    width: _dummyRowHeaderWidth + kBorderThickness,
+                  ),
                   Expanded(
                     // Column Headers.
                     child: _Headers(
@@ -57,14 +64,14 @@ class _SheetWithHeadersState extends State<SheetWithHeaders> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SizedBox(
-                    width: _dummyRowHeaderWidth,
+                    width: _dummyRowHeaderWidth + kBorderThickness,
                     // Row headers.
                     child: _Headers(
                       controller: _sheetController!,
                       axis: Axis.vertical,
                     ),
                   ),
-                  Expanded(child: Placeholder()),
+                  Expanded(child: SheetLayout(_sheetController!)),
                   SizedBox(
                     width: kScrollBarPaddedThickness,
                     child: SheetScrollbar(
@@ -80,7 +87,9 @@ class _SheetWithHeadersState extends State<SheetWithHeaders> {
               height: kScrollBarPaddedThickness,
               child: Row(
                 children: [
-                  const SizedBox(width: _dummyRowHeaderWidth),
+                  const SizedBox(
+                    width: _dummyRowHeaderWidth + kBorderThickness,
+                  ),
                   Expanded(
                     child: SheetScrollbar(
                       controller: _sheetController!,
@@ -88,7 +97,9 @@ class _SheetWithHeadersState extends State<SheetWithHeaders> {
                       length: _sheet.width,
                     ),
                   ),
-                  const SizedBox(width: kScrollBarPaddedThickness),
+                  const SizedBox(
+                    width: kScrollBarPaddedThickness,
+                  ),
                 ],
               ),
             )
@@ -118,14 +129,25 @@ class _Headers extends StatelessWidget {
       controller: isVertical
           ? controller.verticalScrollController
           : controller.horizontalScrollController,
+      physics: const NeverScrollableScrollPhysics(),
       scrollDirection: axis,
       itemCount: isVertical ? sheet.rowCount : sheet.colCount,
       itemBuilder: (context, index) {
         return Container(
           alignment: Alignment.center,
-          color: Colors.lightBlue,
-          width: isVertical ? kPageHeaderHeight : sheet.widthOf(index),
-          height: isVertical ? sheet.heightOf(index) : kPageHeaderHeight,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            border: Border.all(
+              color: Colors.grey.shade400,
+              width: kBorderThickness / 2,
+            ),
+          ),
+          width: isVertical
+              ? kPageHeaderHeight + kBorderThickness
+              : sheet.widthOf(index),
+          height: isVertical
+              ? sheet.heightOf(index)
+              : kPageHeaderHeight + kBorderThickness,
           child: Text(isVertical ? _rowName(index) : _colName(index)),
         );
       },

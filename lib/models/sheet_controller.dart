@@ -12,9 +12,9 @@ class SheetController extends ChangeNotifier {
 
   void _initialize(Offset topLeft) {
     _firstRowIndex = sheet.rowIndexOf(topLeft.dy);
-    _lastRowIndex = sheet.rowIndexOf(topLeft.dy + size.height);
+    _lastRowIndex = sheet.rowIndexOf(topLeft.dy + size.height) + 1;
     _firstColIndex = sheet.colIndexOf(topLeft.dx);
-    _firstColIndex = sheet.colIndexOf(topLeft.dx + size.width);
+    _lastColIndex = sheet.colIndexOf(topLeft.dx + size.width) + 1;
 
     horizontalScrollController = ScrollController(
       initialScrollOffset: sheet.xOffsetOf(_firstColIndex),
@@ -43,13 +43,6 @@ class SheetController extends ChangeNotifier {
   int get firstColIndex => _firstColIndex;
 
   int get lastColIndex => _lastColIndex;
-
-  void set(int firstRow, int lastRow, int firstCol, int lastCol) {
-    _firstRowIndex = firstRow;
-    _lastRowIndex = lastRow;
-    _firstColIndex = firstCol;
-    _lastColIndex = lastCol;
-  }
 
   void jumpToRow(int newFirst) {
     final int newLast = sheet.lastRowIndexOf(newFirst, size);

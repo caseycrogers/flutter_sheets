@@ -87,10 +87,17 @@ class CellView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: Sheet.of(context).rowHeights[rowIndex],
-      color:
-          (rowIndex + colIndex) % 2 == 0 ? Colors.grey.shade200 : Colors.white,
-      child: Text('$rowIndex, $colIndex'),
+      width: Sheet.of(context).widthOf(colIndex),
+      height: Sheet.of(context).heightOf(rowIndex),
+      padding: const EdgeInsets.all(kBorderThickness / 2),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(
+          color: Colors.grey.shade200,
+          width: kBorderThickness,
+        ),
+      ),
+      child: SizedBox.expand(child: Text('$rowIndex, $colIndex')),
     );
   }
 }
