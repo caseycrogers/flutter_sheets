@@ -1,17 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_sheets/constants.dart';
+import 'package:flutter_sheets/models/sheet_controller.dart';
 
 class SheetScrollbar extends StatefulWidget {
   const SheetScrollbar({
-    required this.scrollDirection,
-    required this.onDrag,
+    required this.controller,
+    required this.axis,
     required this.length,
     Key? key,
   }) : super(key: key);
 
-  final Axis scrollDirection;
-  final void Function(double) onDrag;
+  final SheetController controller;
+  final Axis axis;
   final double length;
 
   @override
@@ -19,37 +21,37 @@ class SheetScrollbar extends StatefulWidget {
 }
 
 class _SheetScrollbarState extends State<SheetScrollbar> {
-  late final ScrollController _controller = ScrollController()
+  late final ScrollController _scrollController = ScrollController()
     ..addListener(_onDrag);
 
   void _onDrag() {
-    widget.onDrag(_controller.position.pixels);
+    if (widget.axis == Axis.vertical) {
+      return widget.controller.jumpToRowAt(_scrollController.position.pixels);
+    }
+    widget.controller.jumpToColAt(_scrollController.position.pixels);
   }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
-      print(_controller.position.maxScrollExtent);
-    });
     return Theme(
       data: Theme.of(context).copyWith(
           scrollbarTheme: ScrollbarThemeData(
         thumbColor: MaterialStateProperty.all(Colors.grey.shade400),
       )),
       child: Scrollbar(
-        controller: _controller,
+        controller: _scrollController,
         thickness: kScrollBarThickness,
         isAlwaysShown: true,
         // Garbage hack to construct a scroll bar.
         child: SingleChildScrollView(
-          scrollDirection: widget.scrollDirection,
-          controller: _controller,
+          scrollDirection: widget.axis,
+          controller: _scrollController,
           child: Container(
             color: Colors.grey.shade200,
-            width: widget.scrollDirection == Axis.horizontal
+            width: widget.axis == Axis.horizontal
                 ? widget.length
                 : kScrollBarPaddedThickness,
-            height: widget.scrollDirection == Axis.vertical
+            height: widget.axis == Axis.vertical
                 ? widget.length
                 : kScrollBarPaddedThickness,
           ),

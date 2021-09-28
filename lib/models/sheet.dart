@@ -1,6 +1,8 @@
 import 'dart:collection';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_sheets/constants.dart';
+import 'package:flutter_sheets/sheet_page.dart';
 
 class Sheet {
   Sheet(
@@ -54,6 +56,14 @@ class Sheet {
     return _rowHeights[rowIndex] ?? kRowHeight;
   }
 
+  double xOffsetOf(int colIndex) {
+    return _leftEdges[colIndex];
+  }
+
+  double yOffsetOf(int rowIndex) {
+    return _topEdges[rowIndex];
+  }
+
   int rowIndexOf(double height) {
     return _closestMatch(
       _topEdges,
@@ -66,6 +76,30 @@ class Sheet {
       _leftEdges,
       width,
     );
+  }
+
+  /// Returns the first non-visible row.
+  int lastRowIndexOf(int firstRowIndex, Size size) {
+    final double viewPortBottomEdge = heightOf(firstRowIndex) + size.width;
+    final index = _topEdges
+        .sublist(firstRowIndex)
+        .indexWhere((edge) => edge >= viewPortBottomEdge);
+    if (index == -1) {
+      return _topEdges.length;
+    }
+    return index;
+  }
+
+  /// Returns the first non-visible column.
+  int lastColIndexOf(int firstColIndex, Size size) {
+    final double viewPortRightEdge = widthOf(firstColIndex) + size.width;
+    final index = _leftEdges
+        .sublist(firstColIndex)
+        .indexWhere((edge) => edge >= viewPortRightEdge);
+    if (index == -1) {
+      return _leftEdges.length;
+    }
+    return index;
   }
 
   double leftEdgeOf(int colIndex) {
@@ -82,6 +116,10 @@ class Sheet {
 
   double bottomEdgeOf(int rowIndex) {
     return _topEdges[rowIndex] + (_rowHeights[rowIndex] ?? kRowHeight);
+  }
+
+  static Sheet of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<SheetProvider>()!.sheet;
   }
 }
 
