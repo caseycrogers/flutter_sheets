@@ -8,20 +8,7 @@ class SheetController extends ChangeNotifier {
     required this.size,
   }) {
     _initialize(topLeft);
-  }
-
-  void _initialize(Offset topLeft) {
-    _firstRowIndex = sheet.rowIndexOf(topLeft.dy);
-    _lastRowIndex = sheet.rowIndexOf(topLeft.dy + size.height) + 1;
-    _firstColIndex = sheet.colIndexOf(topLeft.dx);
-    _lastColIndex = sheet.colIndexOf(topLeft.dx + size.width) + 1;
-
-    horizontalScrollController = ScrollController(
-      initialScrollOffset: sheet.xOffsetOf(_firstColIndex),
-    );
-    verticalScrollController = ScrollController(
-      initialScrollOffset: sheet.yOffsetOf(_firstRowIndex),
-    );
+    sheet.addListener(_onSheetChanged);
   }
 
   final Sheet sheet;
@@ -43,6 +30,14 @@ class SheetController extends ChangeNotifier {
   int get firstColIndex => _firstColIndex;
 
   int get lastColIndex => _lastColIndex;
+
+  double get topEdge => sheet.topEdgeOf(_firstRowIndex);
+
+  double get bottomEdge => topEdge + size.height;
+
+  double get leftEdge => sheet.leftEdgeOf(_firstColIndex);
+
+  double get rightEdge => leftEdge + size.width;
 
   void jumpToRow(int newFirst) {
     final int newLast = sheet.lastRowIndexOf(newFirst, size);
@@ -70,5 +65,35 @@ class SheetController extends ChangeNotifier {
 
   void jumpToColAt(double width) {
     jumpToCol(sheet.colIndexOf(width));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    sheet.removeListener(_onSheetChanged);
+  }
+
+  void _initialize(Offset topLeft) {
+    _firstRowIndex = sheet.rowIndexOf(topLeft.dy);
+    _lastRowIndex = sheet.rowIndexOf(topLeft.dy + size.height) + 1;
+    _firstColIndex = sheet.colIndexOf(topLeft.dx);
+    _lastColIndex = sheet.colIndexOf(topLeft.dx + size.width) + 1;
+
+    horizontalScrollController = ScrollController(
+      initialScrollOffset: sheet.xOffsetOf(_firstColIndex),
+    );
+    verticalScrollController = ScrollController(
+      initialScrollOffset: sheet.yOffsetOf(_firstRowIndex),
+    );
+  }
+
+  void _onSheetChanged() {
+    final int newLastRow = sheet.lastRowIndexOf(_firstRowIndex, size);
+    final int newLastCol = sheet.lastColIndexOf(_firstColIndex, size);
+    if (newLastRow != _lastRowIndex || newLastCol != _lastColIndex) {
+      _lastRowIndex = newLastRow;
+      _lastColIndex = newLastCol;
+      notifyListeners();
+    }
   }
 }

@@ -43,7 +43,11 @@ class SheetHeader extends StatelessWidget {
                   width: isVertical ? null : kBorderThickness / 2,
                   height: isVertical ? kBorderThickness / 2 : null,
                 ),
-              _HeaderCell(isVertical: isVertical, index: index),
+              _HeaderCell(
+                controller: controller,
+                isVertical: isVertical,
+                index: index,
+              ),
               if (isLast)
                 Container(
                   color: Colors.grey.shade400,
@@ -54,7 +58,11 @@ class SheetHeader extends StatelessWidget {
           );
         },
         separatorBuilder: (BuildContext context, int index) {
-          return _ResizeHandle(axis: axis, index: index);
+          return _ResizeHandle(
+            controller: controller,
+            axis: axis,
+            index: index,
+          );
         },
       ),
     );
@@ -64,10 +72,12 @@ class SheetHeader extends StatelessWidget {
 class _HeaderCell extends StatelessWidget {
   const _HeaderCell({
     Key? key,
+    required this.controller,
     required this.isVertical,
     required this.index,
   }) : super(key: key);
 
+  final SheetController controller;
   final bool isVertical;
   final int index;
 
@@ -97,10 +107,12 @@ class _HeaderCell extends StatelessWidget {
 class _ResizeHandle extends StatelessWidget {
   const _ResizeHandle({
     Key? key,
+    required this.controller,
     required this.axis,
     required this.index,
   }) : super(key: key);
 
+  final SheetController controller;
   final Axis axis;
   final int index;
 
@@ -125,7 +137,9 @@ class _ResizeHandle extends StatelessWidget {
       ),
       onDragEnd: (details) {
         if (isVertical) {
-          final double newHeight = details.offset.dy - sheet.topEdgeOf(index);
+          // Drag details is a screen offset, convert it to a sheet offset.
+          final double newHeight =
+              details.offset.dy - (sheet.topEdgeOf(index) - controller.topEdge);
           if (newHeight > 10) {
             sheet.setHeight(
               index,
@@ -134,7 +148,12 @@ class _ResizeHandle extends StatelessWidget {
           }
           return;
         }
-        final double newWidth = details.offset.dx - sheet.leftEdgeOf(index);
+        // Drag details is a screen offset, convert it to a sheet offset.
+        final double newWidth =
+            details.offset.dx - (sheet.leftEdgeOf(index) - controller.leftEdge);
+        print(sheet.widthOf(index));
+        print(newWidth);
+        print('------');
         if (newWidth > 10) {
           sheet.setWidth(
             index,
