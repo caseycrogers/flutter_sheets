@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_sheets/models/sheet.dart';
 import 'package:flutter_sheets/models/sheet_controller.dart';
+import 'package:flutter_sheets/sheet/cell_view.dart';
 import 'package:flutter_sheets/sheet/sheet_view.dart';
 
 class SheetLayout extends StatefulWidget {
